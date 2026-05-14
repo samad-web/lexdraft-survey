@@ -468,6 +468,7 @@ export function SurveyView() {
   return (
     <div className="survey-page">
       <BackgroundBoxes />
+      {submitted && <Confetti />}
       <div className="survey-shell">
         <header className="survey-top">
           {/* Brand */}
@@ -720,7 +721,6 @@ function ThankYouPanel({
 
   return (
     <div style={{ textAlign: 'center' }}>
-      <Confetti />
       <header style={{ marginBottom: 20 }}>
         <div className="eyebrow">SirahDigital practitioner study</div>
         <h2 className="heading-lg" style={{ marginTop: 4 }}>Thank you for your time</h2>
@@ -749,11 +749,8 @@ function ThankYouPanel({
           <li className="body-sm" style={{ marginBottom: 4 }}>
             If you opted in for a follow-up, we&apos;ll be in touch via the email you provided.
           </li>
-          <li className="body-sm" style={{ marginBottom: 4 }}>
-            Beta access invitations go out as features come online.
-          </li>
           <li className="body-sm">
-            All responses are stored on India servers in line with DPDP Act 2023.
+            Beta access invitations go out as features come online.
           </li>
         </ul>
       </div>
@@ -837,7 +834,7 @@ function Confetti({ count = 70 }: { count?: number }) {
         inset: 0,
         pointerEvents: 'none',
         overflow: 'hidden',
-        zIndex: 60,
+        zIndex: 9999,
       }}
     >
       {pieces.map((p) => <ConfettiPiece key={p.id} {...p} />)}

@@ -1155,9 +1155,16 @@ select.input { appearance: none; background-image: linear-gradient(45deg, transp
   height: 32px;
   border-top:   1px solid color-mix(in srgb, var(--text-primary) 16%, transparent);
   border-right: 1px solid color-mix(in srgb, var(--text-primary) 16%, transparent);
+  /* Asymmetric transition - matches the framer-motion behaviour we replaced:
+     enter (hover) is instant, exit (un-hover) fades back over 2s. The
+     unhovered cells slowly returning to transparent create the cursor
+     "trail" effect through the grid. */
+  background: transparent;
+  transition: background 2s ease-out;
 }
 .bg-boxes-cell:hover {
   background: var(--text-primary);
+  transition: background 0s;
 }
 .bg-boxes-plus {
   position: absolute;

@@ -1156,6 +1156,9 @@ select.input { appearance: none; background-image: linear-gradient(45deg, transp
   border-top:   1px solid color-mix(in srgb, var(--text-primary) 16%, transparent);
   border-right: 1px solid color-mix(in srgb, var(--text-primary) 16%, transparent);
 }
+.bg-boxes-cell:hover {
+  background: var(--text-primary);
+}
 .bg-boxes-plus {
   position: absolute;
   top: -14px;

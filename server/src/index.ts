@@ -20,7 +20,10 @@ import { surveyDraftRouter } from './routes/survey-draft.routes.js';
 // =============================================================================
 
 const app = express();
-app.set('trust proxy', true);
+// Trust exactly one proxy hop (Vercel's edge / nginx in front of the
+// container). 'true' would let any client spoof X-Forwarded-For and bypass
+// per-IP rate limits — express-rate-limit refuses to run in that mode.
+app.set('trust proxy', 1);
 
 // Security headers, CORS, JSON body parsing. Body limit kept tight - the
 // largest payload is the full survey submission (~10 KB), so 64 KB is

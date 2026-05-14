@@ -7,8 +7,8 @@
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
   "functions": {
-    "api/[...path].ts": {
-      "includeFiles": "server/src/**"
-    }
+    "api/[...path].ts":      { "includeFiles": "server/src/**" },
+    "api/dashboard/stats.ts": { "includeFiles": "server/src/**" },
+    "api/dashboard/data.ts":  { "includeFiles": "server/src/**" }
   }
 }

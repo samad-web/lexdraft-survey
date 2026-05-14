@@ -1117,6 +1117,33 @@ select.input { appearance: none; background-image: linear-gradient(45deg, transp
 }
 
 /* =================================================================
+   Survey confetti - one-shot burst on the thank-you screen. Each
+   piece gets randomised inline `left`, `--cf-drift`, `--cf-rot-end`,
+   `animation-duration`, `animation-delay`. Driven from JSX in
+   apps/web/src/views/SurveyView.tsx so the burst stays a single
+   keyframe definition rather than N bespoke animations.
+   ================================================================= */
+@keyframes survey-confetti-fall {
+  0% {
+    transform: translate(0, -10vh) rotate(var(--cf-rot-start, 0deg));
+    opacity: 0;
+  }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% {
+    transform: translate(var(--cf-drift, 0px), 110vh) rotate(var(--cf-rot-end, 540deg));
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* JSX skips rendering pieces entirely in this case, but keep the
+     keyframe present-but-static as a defensive no-op. */
+  @keyframes survey-confetti-fall {
+    from, to { transform: translate(0, -10vh); opacity: 0; }
+  }
+}
+
+/* =================================================================
    BackgroundBoxes - Aceternity-style skewed grid that highlights on
    hover. See apps/web/src/components/BackgroundBoxes.tsx. Recoloured
    monochrome: borders + plus-marks derive from --text-primary via

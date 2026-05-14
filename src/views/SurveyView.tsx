@@ -712,18 +712,29 @@ function ThankYouPanel({
   };
 
   return (
-    <div>
+    <div style={{ textAlign: 'center' }}>
+      <Confetti />
       <header style={{ marginBottom: 20 }}>
         <div className="eyebrow">SirahDigital practitioner study</div>
         <h2 className="heading-lg" style={{ marginTop: 4 }}>Thank you for your time</h2>
       </header>
 
-      <p className="body-md" style={{ marginBottom: 16 }}>
+      <p className="body-md" style={{ marginBottom: 16, maxWidth: 480, marginLeft: 'auto', marginRight: 'auto' }}>
         Your response has been recorded. The findings shape an AI tool built for Indian advocates -
         your candour today goes directly into product decisions.
       </p>
 
-      <div className="card-cream" style={{ padding: 16, marginBottom: 20 }}>
+      <div
+        className="card-cream"
+        style={{
+          padding: 16,
+          marginBottom: 20,
+          maxWidth: 420,
+          marginLeft: 'auto',
+          marginRight: 'auto',
+          textAlign: 'left',
+        }}
+      >
         <div className="body-sm" style={{ color: 'var(--text-secondary)', marginBottom: 6 }}>
           <strong style={{ color: 'var(--text-primary)' }}>What happens next</strong>
         </div>
@@ -741,7 +752,7 @@ function ThankYouPanel({
       </div>
 
       {payload && (
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 12, flexWrap: 'wrap' }}>
           <button type="button" className="btn btn-lg" onClick={handleDownload}>
             Download your response
           </button>
@@ -749,6 +760,113 @@ function ThankYouPanel({
       )}
     </div>
   );
+}
+
+// =============================================================================
+// Confetti - one-shot monochrome burst on submit.
+//
+// Hand-rolled, no dependency. Pieces fall from above the viewport to below
+// it via a CSS keyframe; each piece gets randomised inline left / size /
+// rotation / duration so the burst looks organic. Shapes are restricted to
+// the design system's monochrome palette plus the same SVG plus-mark used
+// by BackgroundBoxes, so the confetti reads as part of the same visual
+// language rather than a third-party party-popper drop-in.
+// =============================================================================
+
+type ConfettiShape = 'square' | 'rect' | 'thin' | 'plus';
+interface ConfettiPieceCfg {
+  id: number;
+  leftPct: number;
+  size: number;
+  rotation: number;
+  delay: number;
+  duration: number;
+  shape: ConfettiShape;
+  shade: string;
+  drift: number; // horizontal drift in px over the fall
+}
+
+const CONFETTI_SHADES = ['#0A0A0A', '#262626', '#404040', '#737373', '#A3A3A3', '#C8C8C8'];
+
+function Confetti({ count = 70 }: { count?: number }) {
+  // Respect users who've asked for reduced motion - skip the burst entirely.
+  const reduced = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+  }, []);
+
+  const pieces = useMemo<ConfettiPieceCfg[]>(() => {
+    if (reduced) return [];
+    const shapes: ConfettiShape[] = ['square', 'rect', 'thin', 'plus'];
+    return Array.from({ length: count }, (_, i) => ({
+      id: i,
+      leftPct: Math.random() * 100,
+      size: 6 + Math.random() * 10,
+      rotation: Math.random() * 360,
+      delay: Math.random() * 1.2,
+      duration: 2.6 + Math.random() * 2.4,
+      shape: shapes[Math.floor(Math.random() * shapes.length)]!,
+      shade: CONFETTI_SHADES[Math.floor(Math.random() * CONFETTI_SHADES.length)]!,
+      drift: (Math.random() - 0.5) * 120,
+    }));
+  }, [count, reduced]);
+
+  // After the longest piece has had time to clear the viewport, unmount the
+  // host so we don't leave 70 absolutely-positioned elements behind.
+  const [mounted, setMounted] = useState(true);
+  useEffect(() => {
+    if (reduced) { setMounted(false); return; }
+    const t = window.setTimeout(() => setMounted(false), 6500);
+    return () => window.clearTimeout(t);
+  }, [reduced]);
+
+  if (!mounted || pieces.length === 0) return null;
+
+  return (
+    <div
+      aria-hidden
+      style={{
+        position: 'fixed',
+        inset: 0,
+        pointerEvents: 'none',
+        overflow: 'hidden',
+        zIndex: 60,
+      }}
+    >
+      {pieces.map((p) => <ConfettiPiece key={p.id} {...p} />)}
+    </div>
+  );
+}
+
+function ConfettiPiece(p: ConfettiPieceCfg) {
+  const style: CSSProperties = {
+    position: 'absolute',
+    top: 0,
+    left: `${p.leftPct}%`,
+    width: p.shape === 'rect' ? p.size : p.shape === 'thin' ? Math.max(2, p.size * 0.2) : p.size,
+    height: p.shape === 'rect' ? Math.max(3, p.size * 0.4) : p.size,
+    background: p.shape === 'plus' ? 'transparent' : p.shade,
+    color: p.shade,
+    borderRadius: p.shape === 'thin' ? 1 : 2,
+    animation: `survey-confetti-fall ${p.duration}s linear ${p.delay}s 1 forwards`,
+    // Custom property consumed by the @keyframes; lets each piece carry its
+    // own drift + rotation without us generating bespoke keyframes per piece.
+    ['--cf-drift' as never]: `${p.drift}px`,
+    ['--cf-rot-start' as never]: `${p.rotation}deg`,
+    ['--cf-rot-end' as never]: `${p.rotation + 540}deg`,
+    transform: `translate(0, -10vh) rotate(${p.rotation}deg)`,
+    willChange: 'transform, opacity',
+  };
+  if (p.shape === 'plus') {
+    return (
+      <span style={style}>
+        <svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" d="M12 6v12m6-6H6" />
+        </svg>
+      </span>
+    );
+  }
+  return <span style={style} />;
 }
 
 // =============================================================================
